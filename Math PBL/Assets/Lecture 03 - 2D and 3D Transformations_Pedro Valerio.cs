@@ -1,0 +1,185 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public enum ExerciseTransformation
+{
+    None,
+    ReflectionY,
+    ReflectionX,
+    ShearingX,
+    ShearingY
+}
+
+public class Exercises : Transformations
+{
+    public float angleInDegrees;
+
+    private Mesh mesh;
+    private Vector3[] vertices;
+
+    // Vertices
+    static private Coordinate p1 = new Coordinate(0, 0);
+    static private Coordinate p2 = new Coordinate(10, 0);
+    static private Coordinate p3 = new Coordinate(0, 10);
+    static private Coordinate p4 = new Coordinate(10, 10);
+
+    public ExerciseTransformation exerciseTransformation;
+    public bool run = false;
+
+    void Start()
+    {
+        angleInDegrees = 45f;
+        mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = mesh;
+        mesh.name = "MyMesh";
+        vertices = new Vector3[4];
+        Reset();
+
+        // Add a Mesh Renderer component to the Mesh object
+        MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+
+        // Create a new material that uses a green color
+        Material material = new Material(Shader.Find("Standard"));
+        material.color = Color.yellow;
+
+        // Assign the material to the Mesh object
+        meshRenderer.material = material;
+    }
+
+    void Update()
+    {
+        if (run)
+        {
+            run = false;
+            Reset();
+
+            switch (exerciseTransformation)
+            {
+                case ExerciseTransformation.ReflectionY:
+                    {
+                        ReflectY();
+                        break;
+                    }
+                case ExerciseTransformation.ReflectionX:
+                    {
+                        ReflectX();
+                        break;
+                    }
+                case ExerciseTransformation.ShearingX:
+                    {
+                        ShearingX(angleInDegrees * Mathf.Deg2Rad);
+                        break;
+                    }
+                case ExerciseTransformation.ShearingY:
+                    {
+                        ShearingY(angleInDegrees * Mathf.Deg2Rad);
+                        break;
+                    }
+                default: break;
+            }
+        }
+    }
+
+    void Reset()
+    {
+        vertices[0] = new Vector3(p1.x, p1.y, 1);
+        vertices[1] = new Vector3(p2.x, p2.y, 1);
+        vertices[2] = new Vector3(p3.x, p3.y, 1);
+        vertices[3] = new Vector3(p4.x, p4.y, 1);
+        mesh.vertices = vertices;
+
+        int[] triangles = new int[6];
+        triangles[0] = 0; // p1
+        triangles[1] = 3; // p4
+        triangles[2] = 1; // p2
+        triangles[3] = 0; // p1
+        triangles[4] = 2; // p3
+        triangles[5] = 3; // p4
+        mesh.triangles = triangles;
+    }
+
+    #region Exercise Transformations
+
+    void ReflectY()
+    {
+        float[,] mat = new float[2, 2];
+        mat[0, 0] = -1; mat[0, 1] = 0;
+        mat[1, 0] = 0; mat[1, 1] = 1;
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = multiply(mat, vertices[i]);
+        }
+        mesh.vertices = vertices;
+        InvertTriangles();
+    }
+
+    void ReflectX()
+    {
+        float[,] mat = new float[2, 2];
+        mat[0, 0] = 1; mat[0, 1] = 0;
+        mat[1, 0] = 0; mat[1, 1] = -1;
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = multiply(mat, vertices[i]);
+        }
+        mesh.vertices = vertices;
+        InvertTriangles();
+    }
+
+	void ShearingX(float angle)
+    {
+        float shearFactor = Mathf.Tan(angle);
+        float[,] mat = new float[2, 2];
+        mat[0, 0] = 1; mat[0, 1] = shearFactor;
+        mat[1, 0] = 0; mat[1, 1] = 1;
+        
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = multiply(mat, vertices[i]);
+        }
+        mesh.vertices = vertices;
+    }
+
+    void ShearingY(float angle)
+    {
+        float shearFactor = Mathf.Tan(angle);
+        float[,] mat = new float[2, 2];
+        mat[0, 0] = 1; mat[0, 1] = 0;
+        mat[1, 0] = shearFactor; mat[1, 1] = 1;
+        
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = multiply(mat, vertices[i]);
+        }
+        mesh.vertices = vertices;
+    }
+	
+	Vector3 multiply(float[,] mat, Vector3 point)
+    {
+        float xNew = mat[0, 0] * point.x + mat[0, 1] * point.y;
+        float yNew = mat[1, 0] * point.x + mat[1, 1] * point.y;
+        return new Vector3(xNew, yNew, 1);
+    }
+
+    // This is necessary because, after the reflection, the camera will be facing the back side
+    // of the original square, which is not visible.
+    void InvertTriangles()
+    {
+        int[] triangles = new int[6];
+        triangles[0] = 1; // p2
+        triangles[1] = 3; // p4
+        triangles[2] = 0; // p1
+        triangles[3] = 3; // p4
+        triangles[4] = 2; // p3
+        triangles[5] = 0; // p1
+        mesh.triangles = triangles;
+    }
+
+
+    #endregion
+	
+	// Pedro Valério
+	// 20230555
+
+}
