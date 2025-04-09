@@ -18,13 +18,14 @@ public class ButtonPress : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E) && !animIsPlaying)
         {
-            anim.Play("ButtonCylinder|Cylinder.003Action");
+            anim.SetBool("isPlaying", true);
             animIsPlaying = true;
         }
     }
 
     public void AnimFinish()
     {
+        anim.SetBool("isPlaying", false);
         animIsPlaying = false;
     }
 }
