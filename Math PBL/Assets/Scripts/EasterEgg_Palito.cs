@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -9,11 +10,16 @@ public class EasterEgg_Palito : MonoBehaviour
     private Rigidbody rb;
     private bool isActive;
     
+    private Vector3 defaultPosition;
+    private Quaternion defaultRotation;
+    
     // Start is called before the first frame update
     void Awake()
     {
         ElPalito.SetActive(false);
         rb = ElPalito.GetComponent<Rigidbody>();
+        defaultPosition = ElPalito.transform.position;
+        defaultRotation = ElPalito.transform.rotation;
     }
 
     // Update is called once per frame
@@ -25,9 +31,12 @@ public class EasterEgg_Palito : MonoBehaviour
             isActive = true;
         }
 
-        if (ElPalito.transform.position.y <= -100)
+        if (ElPalito.transform.position.y <= -30)
         {
             ElPalito.SetActive(false);
+            // isActive = false; // comment or uncomment this to allow El Palito to be respawned after the first time it disappears
+            ElPalito.transform.position = defaultPosition;
+            ElPalito.transform.rotation = defaultRotation;
         }
     }
     
@@ -37,7 +46,7 @@ public class EasterEgg_Palito : MonoBehaviour
         
         if (col.CompareTag("Palito"))
         {
-            rb.AddForce(Vector3.up * 10, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * Random.Range(10, 20), ForceMode.Impulse);
             Debug.Log("applied force to " + col.gameObject.name);
         }
     }

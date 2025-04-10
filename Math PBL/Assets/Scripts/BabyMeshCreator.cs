@@ -6,12 +6,16 @@ using UnityEngine.UIElements;
 public class BabyMeshCreator : MonoBehaviour
 {
     Mesh mesh;
+    public ButtonPress buttonScript;
     public MeshCollider meshC;
     public Vector3[] vertices;
     public int[] triangles;
 
-    public int xSize;
-    public int ySize;
+    // public int xSize;
+    // public int ySize;
+    
+    private float rotationSpeed;
+    private float maxRotationSpeed = 0.75f;
 
     public int curveSegments = 10; // Controls smoothness of the semicircle
     public float radius = 1f;
@@ -26,17 +30,37 @@ public class BabyMeshCreator : MonoBehaviour
         UpdateMesh();
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        for (int i = 0; i < vertices.Length; i++)
+        if (ButtonPress.buttonIsPressed)
         {
-            vertices[i] = RotateX(vertices[i], 0.1f);
+            rotationSpeed += 0.005f;
+            
+            // Pizza scale mesh (both evenly and unevenly)
+            EvenlyScaleMesh(1.01f); // Slow increase
+            UnevenlyScaleMesh(0.99f); // Slow decrease
+        }
+        else
+        {
+            rotationSpeed -= 0.005f;
+            
+            // EvenlyScaleMesh(0.8f); // Fast decrease
+            // UnevenlyScaleMesh(1.2f); // Fast increase
         }
 
+        if (rotationSpeed > maxRotationSpeed) { rotationSpeed = maxRotationSpeed; }
+        else if (rotationSpeed < 0) { rotationSpeed = 0; }
+        
+        // Rotate mesh on Z axis
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = RotateX(vertices[i], rotationSpeed);
+        }
+        
         UpdateMesh();
     }
 
-    Vector3 RotateX(Vector3 vertex, float angle)
+    /* Vector3 RotateX(Vector3 vertex, float angle)
     {
         float cosTheta = Mathf.Cos(angle);
         float sinTheta = Mathf.Sin(angle);
@@ -45,6 +69,54 @@ public class BabyMeshCreator : MonoBehaviour
         float newZ = vertex.y * sinTheta + vertex.z * cosTheta;
 
         return new Vector3(vertex.x, newY, newZ);
+    } */
+    
+    Vector3 RotateX(Vector3 vertex, float angle)
+    {
+        Matrix4x4 rotationMatrix = Matrix4x4.Rotate(Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg)); // Z axis
+        return rotationMatrix.MultiplyPoint3x4(vertex);
+        
+        /* Quaternion rotation = Quaternion.AngleAxis(angle * Mathf.Rad2Deg, Vector3.right);
+        Vector3 rotated = rotation * vertex;
+        return rotated; */
+    }
+    
+    public void EvenlyScaleMesh(float scaleFactor)
+    {
+        /* Matrix4x4 scaleMatrix = Matrix4x4.Scale(Vector3.one * scaleFactor);
+
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = scaleMatrix.MultiplyPoint3x4(vertices[i]);
+        } */
+        
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = new Vector3(
+                vertices[i].x * scaleFactor,
+                vertices[i].y * scaleFactor,
+                vertices[i].z * scaleFactor
+            );
+        }
+    }
+    
+    public void UnevenlyScaleMesh(float scaleFactor)
+    {
+        /* Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(1f, 1f, scaleFactor)); // Z axis
+
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = scaleMatrix.MultiplyPoint3x4(vertices[i]);
+        } */
+        
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = new Vector3(
+                vertices[i].x * 1,
+                vertices[i].y * 1,
+                vertices[i].z * scaleFactor
+            );
+        }
     }
 
     void CreateMesh()
@@ -80,7 +152,7 @@ public class BabyMeshCreator : MonoBehaviour
         vertices.Add(new Vector3(-2, -1, 1));   // 22
         vertices.Add(new Vector3(-2, -2, 1));   // 23
 
-        //extra points that we forgot to add above and didn't want to place above to avoid having to rearrange the index 
+        // extra points that we forgot to add above and didn't want to place above to avoid having to rearrange the index 
         vertices.Add(new Vector3(1, 1, -1));    // 24
         vertices.Add(new Vector3(-1, 1, -1));   // 25
         vertices.Add(new Vector3(1, 1, 1));     // 26
@@ -97,7 +169,7 @@ public class BabyMeshCreator : MonoBehaviour
             vertices.Add(new Vector3(x, y, centerFront.z));
         }
 
-        //back curve points
+        // back curve points
         Vector3 centerBack = new Vector3(0, 1, 1);
         int backCurveStartIndex = vertices.Count;
         for (int i = 0; i <= curveSegments; i++)
@@ -107,8 +179,6 @@ public class BabyMeshCreator : MonoBehaviour
             float y = Mathf.Sin(angle) * radius + centerBack.y;
             vertices.Add(new Vector3(x, y, centerBack.z));
         }
-
-
 
         // Front faces
         triangles.AddRange(new int[] { 0, 11, 10 });
@@ -128,7 +198,6 @@ public class BabyMeshCreator : MonoBehaviour
             triangles.Add(frontCurveStartIndex + i + 1);
         }
 
-
         // Back faces
         triangles.AddRange(new int[] { 22, 23, 12 });
         triangles.AddRange(new int[] { 12, 13, 22 });
@@ -146,8 +215,7 @@ public class BabyMeshCreator : MonoBehaviour
             triangles.Add(backCurveStartIndex + i + 1);
             triangles.Add(backCurveStartIndex + i);
         }
-
-
+        
         // Side faces
         triangles.AddRange(new int[] { 12, 23, 11 });
         triangles.AddRange(new int[] { 11, 0, 12 });
@@ -192,8 +260,6 @@ public class BabyMeshCreator : MonoBehaviour
             triangles.Add(backB);
             triangles.Add(frontB);
         }
-
-
 
         this.vertices = vertices.ToArray();
         this.triangles = triangles.ToArray();

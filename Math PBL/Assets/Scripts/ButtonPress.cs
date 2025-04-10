@@ -8,6 +8,7 @@ public class ButtonPress : MonoBehaviour
     public GameObject button;
     private Animator anim;
     private bool animIsPlaying;
+    public static bool buttonIsPressed;
 
     void Start()
     {
@@ -16,11 +17,24 @@ public class ButtonPress : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && !animIsPlaying)
+        if (Input.GetKey(KeyCode.E) && !animIsPlaying)
         {
             anim.SetBool("isPlaying", true);
             animIsPlaying = true;
+            buttonIsPressed = true;
+            
+            Debug.Log(buttonIsPressed);
         }
+        else if (Input.GetKeyUp(KeyCode.E))
+        {
+            anim.SetBool("isPlaying", false);
+            buttonIsPressed = false;
+            
+            Debug.Log(buttonIsPressed);
+        }
+
+        // Reset scene because why not
+        if (Input.GetKeyDown(KeyCode.R)) { Application.LoadLevel(Application.loadedLevel); }
     }
 
     public void AnimFinish()
