@@ -98,10 +98,8 @@ public class BabyMeshCreator : MonoBehaviour
 
         UpdateMesh();
     }
-
-
-
-    //          ROTATION WITH MATRIX
+    
+    // ROTATION WITH MATRIX
     Vector3 Matrix_Rotate(Vector3 vertex, float angle, Axis axis)
     {
         float cos = Mathf.Cos(angle);
@@ -150,8 +148,7 @@ public class BabyMeshCreator : MonoBehaviour
         return new Vector3(x, y, z);
     }
 
-
-    //          ROTATION WITH QUATERNIONS
+    // ROTATION WITH QUATERNIONS
     Vector3 Quaternion_Rotate(Vector3 vertex, float angle, Axis axis)
     {
         float halfAngle = angle / 2f;
@@ -193,10 +190,8 @@ public class BabyMeshCreator : MonoBehaviour
 
         return new Vector3(rx, ry, rz);
     }
-
-
-
-    //           EVEN SCALING FUNCTION
+    
+    // EVEN SCALING FUNCTION
     public void EvenlyScaleMesh(float scaleFactor)
     {
         for (int i = 0; i < vertices.Length; i++)
@@ -209,8 +204,8 @@ public class BabyMeshCreator : MonoBehaviour
         }
     }
 
-    //          UNEVEN SCALING FUNCTIONS
-    public void UnevenlyScaleMesh(float scaleFactor_x, float scaleFactor_y, float scaleFactor_z) // we didn't use Vector3 because we wanted to make the function more intuitive to use
+    // UNEVEN SCALING FUNCTIONS
+    public void UnevenlyScaleMesh(float scaleFactor_x, float scaleFactor_y, float scaleFactor_z) // we didn't use Vector3 because we wanted to make the function more intuitive to use // What he said
     {
         for (int i = 0; i < vertices.Length; i++)
         {
@@ -221,10 +216,8 @@ public class BabyMeshCreator : MonoBehaviour
             );
         }
     }
-
-
-
-    //            MANUALLY-BUILT BABY MESH
+    
+    // MANUALLY-BUILT BABY MESH
     void CreateMesh()
     {
         List<Vector3> vertices = new List<Vector3>();
@@ -258,7 +251,7 @@ public class BabyMeshCreator : MonoBehaviour
         vertices.Add(new Vector3(-2, -1,  1));   // 22
         vertices.Add(new Vector3(-2, -2,  1));   // 23
 
-        // extra points that we forgot to add above and instead put below to avoid having to rearrange the whole index 
+        // extra points that we forgot to add above and instead put below to avoid having to rearrange the whole index
         vertices.Add(new Vector3( 1,  1, -1));   // 24
         vertices.Add(new Vector3(-1,  1, -1));   // 25
         vertices.Add(new Vector3( 1,  1,  1));   // 26
