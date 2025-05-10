@@ -69,7 +69,10 @@ public class BabyMeshCreator : MonoBehaviour
         {
             for (int i = 0; i < vertices.Length; i++)
             {
-                vertices[i] = Matrix_Rotate(vertices[i], rotationSpeed, Axis.z);
+                if (ButtonPress.buttonIsPressed)
+                    vertices[i] = Matrix_Rotate(vertices[i], rotationSpeed, Axis.z);
+                else
+                    vertices[i] = Quaternion_Rotate(vertices[i], rotationSpeed, Axis.z);
             }
         }
 
@@ -143,6 +146,49 @@ public class BabyMeshCreator : MonoBehaviour
         float z = rotationMatrix[2, 0] * vertex.x + rotationMatrix[2, 1] * vertex.y + rotationMatrix[2, 2] * vertex.z;
 
         return new Vector3(x, y, z);
+    }
+
+    // ROTATION WITH QUATERNIONS
+    Vector3 Quaternion_Rotate(Vector3 vertex, float angle, Axis axis)
+    {
+        float halfAngle = angle / 2f;
+        float sinHalf = Mathf.Sin(halfAngle);
+        float cosHalf = Mathf.Cos(halfAngle);
+
+        float w = cosHalf;
+        float x = 0f;
+        float y = 0f;
+        float z = 0f;
+
+        switch (axis)
+        {
+            case Axis.x:
+                x = sinHalf;
+            break;
+
+            case Axis.y:
+                y = sinHalf;
+            break;
+
+            case Axis.z:
+                z = sinHalf;
+            break;
+        }
+
+        float vx = vertex.x;
+        float vy = vertex.y;
+        float vz = vertex.z;
+
+        float qw = -x * vx - y * vy - z * vz;
+        float qx = w * vx + y * vz - z * vy;
+        float qy = w * vy + z * vx - x * vz;
+        float qz = w * vz + x * vy - y * vx;
+
+        float rx = qx * w - qw * x - qy * z + qz * y;
+        float ry = qy * w - qw * y - qz * x + qx * z;
+        float rz = qz * w - qw * z - qx * y + qy * x;
+
+        return new Vector3(rx, ry, rz);
     }
     
     // EVEN SCALING FUNCTION
