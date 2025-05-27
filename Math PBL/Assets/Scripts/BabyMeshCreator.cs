@@ -8,6 +8,10 @@ public class BabyMeshCreator : MonoBehaviour
     Mesh mesh;
     public ButtonPress buttonScript;
     public MeshCollider meshC;
+    public Transform bezierP1;
+    public Transform bezierP2;
+    public Transform bezierP3;
+    public Transform bezierP4;
     public int[] triangles;
     public Vector3[] vertices;
 
@@ -21,6 +25,10 @@ public class BabyMeshCreator : MonoBehaviour
     public float radius = 1f;
 
     public enum Axis { x, y, z }
+
+    public float bezierSpeed = 0.2f;
+    private float bezierT = 0f;
+
 
     void Start()
     {
@@ -95,6 +103,12 @@ public class BabyMeshCreator : MonoBehaviour
                 }
             }
         }
+        
+        // Move along bezier curve thing at constant speed
+        bezierT += bezierSpeed * Time.fixedDeltaTime;
+        if (bezierT > 1f) bezierT -= 1f;
+
+        transform.position = EvaluateBezier(bezierT);
 
         UpdateMesh();
     }
@@ -215,6 +229,18 @@ public class BabyMeshCreator : MonoBehaviour
                 vertices[i].z * scaleFactor_z
             );
         }
+    }
+    
+    // BEZIER CURVE
+    Vector3 EvaluateBezier(float t)
+    {
+        float u = 1 - t;
+        float tt = t * t;
+        float uu = u * u;
+        float uuu = uu * u;
+        float ttt = tt * t;
+
+        return uuu * bezierP1.position + 3 * uu * t * bezierP2.position + 3 * u * tt * bezierP3.position + ttt * bezierP4.position;
     }
     
     // MANUALLY-BUILT BABY MESH
