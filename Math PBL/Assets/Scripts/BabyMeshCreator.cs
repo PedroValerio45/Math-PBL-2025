@@ -108,7 +108,7 @@ public class BabyMeshCreator : MonoBehaviour
         bezierT += bezierSpeed * Time.fixedDeltaTime;
         if (bezierT > 1f) bezierT -= 1f;
 
-        transform.position = EvaluateBezier(bezierT);
+        transform.position = BezierMove(bezierT);
 
         UpdateMesh();
     }
@@ -232,7 +232,7 @@ public class BabyMeshCreator : MonoBehaviour
     }
     
     // BEZIER CURVE
-    Vector3 EvaluateBezier(float t)
+    Vector3 BezierMove(float t)
     {
         float u = 1 - t;
         float tt = t * t;
